@@ -1,0 +1,38 @@
+@page "/product/{Id:int}"
+@using BackendCommerceApp.Data
+
+<PageTitle>@(product?.Name ?? "Product not found")</PageTitle>
+
+@if (product is null)
+{
+    <p>Product not found. <a href="/">Go back home</a>.</p>
+}
+else
+{
+    <a class="back-link" href="@($"/category/{product.CategorySlug}")">&larr; Back to @categoryName</a>
+
+    <section class="product-detail">
+        <div class="product-detail-image">@product.Icon</div>
+        <div class="product-detail-info">
+            <h1>@product.Name</h1>
+            <p class="product-detail-category">@categoryName</p>
+            <p class="product-detail-price">@product.Price.ToString("C")</p>
+            <p class="product-detail-description">@product.Description</p>
+            <button class="btn btn-primary">Add to Cart</button>
+        </div>
+    </section>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Product? product;
+    private string categoryName = string.Empty;
+
+    protected override void OnParametersSet()
+    {
+        product = ProductCatalog.GetProduct(Id);
+        categoryName = product is null ? string.Empty : ProductCatalog.GetCategory(product.CategorySlug)?.Name ?? product.CategorySlug;
+    }
+}
