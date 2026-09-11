@@ -1,12 +1,12 @@
 namespace BackendCommerceApp.Data;
 
-public record Category(string Name, string Slug, string Icon);
+public record CatalogCategory(string Name, string Slug, string Icon);
 
-public record Product(int Id, string Name, string CategorySlug, decimal Price, string Icon, string Description);
+public record CatalogProduct(int Id, string Name, string CategorySlug, decimal Price, string Icon, string Description);
 
 public static class ProductCatalog
 {
-    public static IReadOnlyList<Category> Categories { get; } = new List<Category>
+    public static IReadOnlyList<CatalogCategory> Categories { get; } = new List<CatalogCategory>
     {
         new("Electronics", "electronics", "💻"),
         new("Clothing", "clothing", "👕"),
@@ -16,7 +16,7 @@ public static class ProductCatalog
         new("Books", "books", "📚"),
     };
 
-    public static IReadOnlyList<Product> Products { get; } = new List<Product>
+    public static IReadOnlyList<CatalogProduct> Products { get; } = new List<CatalogProduct>
     {
         new(1, "Wireless Headphones", "electronics", 79.99m, "🎧", "Over-ear wireless headphones with noise cancellation and a 30-hour battery life."),
         new(2, "Smart Watch", "electronics", 129.99m, "⌚", "Track your fitness and notifications with this sleek smart watch."),
@@ -34,7 +34,7 @@ public static class ProductCatalog
 
     public static int ProductCountForCategory(string slug) => Products.Count(p => p.CategorySlug == slug);
 
-    public static Product? GetProduct(int id) => Products.FirstOrDefault(p => p.Id == id);
+    public static CatalogProduct? GetProduct(int id) => Products.FirstOrDefault(p => p.Id == id);
 
-    public static Category? GetCategory(string slug) => Categories.FirstOrDefault(c => c.Slug == slug);
+    public static CatalogCategory? GetCategory(string slug) => Categories.FirstOrDefault(c => c.Slug == slug);
 }
