@@ -17,5 +17,17 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.HasDefaultSchema("BackendCommerceApp");
+
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.ToTable("product");
+            entity.HasKey(product => product.Id);
+
+            entity.Property(product => product.Id).HasColumnName("id");
+            entity.Property(product => product.Name).HasColumnName("name");
+            entity.Property(product => product.Description).HasColumnName("description");
+            entity.Property(product => product.Category).HasColumnName("category");
+            entity.Property(product => product.Price).HasColumnName("price");
+        });
     }
 }

@@ -1,3 +1,4 @@
 <Solution>
+  <Folder Name="/.clear-products/" />
   <Project Path="BackendCommerceApp/BackendCommerceApp.csproj" />
 </Solution>
