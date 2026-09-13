@@ -19,7 +19,7 @@ else
         <div class="product-detail-info">
             <h1>@product.Name</h1>
             <p class="product-detail-category">@categoryName</p>
-            <p class="product-detail-price">@product.Price.ToString("C")</p>
+            <p class="product-detail-price">$@product.Price.ToString("0.00")</p>
             <p class="product-detail-description">@product.Description</p>
             <button class="btn btn-primary">Add to Cart</button>
         </div>

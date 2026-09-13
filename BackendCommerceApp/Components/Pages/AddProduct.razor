@@ -1,0 +1,108 @@
+@page "/add-product"
+@using BackendCommerceApp.Data
+@using BackendCommerceApp.Services
+@using BackendCommerceApp.Models
+@rendermode InteractiveServer
+@inject ProductService ProductService
+@inject AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Add Product</PageTitle>
+
+@if (AuthService.CurrentUser?.Admin != true)
+{
+    <div class="account-list-status">
+        <h1>Admin access required</h1>
+        <p>Only administrators can add products.</p>
+        <a class="btn btn-primary" href="login">Log in</a>
+    </div>
+}
+else
+{
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Add New Product</h2>
+
+                @if (!string.IsNullOrEmpty(message))
+                {
+                    <div class="alert alert-@messageType alert-dismissible fade show" role="alert">
+                        @message
+                        <button type="button" class="btn-close" @onclick="() => message = string.Empty"></button>
+                    </div>
+                }
+
+                <form @onsubmit="HandleAddProduct">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Product Name</label>
+                        <input type="text" class="form-control" id="name" @bind="product.Name" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" rows="4" @bind="product.Description" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" @bind="product.Category" required>
+                            <option value="">Select a category</option>
+                            @foreach (var category in ProductCatalog.Categories)
+                            {
+                                <option value="@category.Slug">@category.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="price" @bind="product.Price" step="0.01" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add Product</button>
+                    <a href="/" class="btn btn-secondary add-product-cancel">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private Product product = new();
+    private string message = string.Empty;
+    private string messageType = "info";
+
+    private async Task HandleAddProduct()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(product.Name) || string.IsNullOrWhiteSpace(product.Description) || string.IsNullOrWhiteSpace(product.Category))
+            {
+                message = "Product name, description, and category are required.";
+                messageType = "warning";
+                return;
+            }
+
+            if (product.Price <= 0)
+            {
+                message = "Price must be greater than 0.";
+                messageType = "warning";
+                return;
+            }
+
+            await ProductService.AddProductAsync(product.Name, product.Description, product.Category, product.Price);
+
+            message = "Product added successfully!";
+            messageType = "success";
+            product = new();
+
+            await Task.Delay(2000);
+            Navigation.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            message = $"Error adding product: {ex.Message}";
+            messageType = "danger";
+        }
+    }
+}

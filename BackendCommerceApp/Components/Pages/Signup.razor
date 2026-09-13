@@ -1,0 +1,90 @@
+@page "/signup"
+@using System.ComponentModel.DataAnnotations
+@using BackendCommerceApp.Services
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Sign up</PageTitle>
+
+<section class="account-page">
+    <div class="account-intro">
+        <p class="eyebrow">Join the store</p>
+        <h1>Create your account</h1>
+        <p>Save your details for a smoother shopping experience.</p>
+    </div>
+
+    <div class="account-panel">
+        <EditForm Model="signupModel" OnValidSubmit="HandleSignupAsync">
+            <DataAnnotationsValidator />
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="signup-first-name">First name</label>
+                    <InputText id="signup-first-name" class="form-control" @bind-Value="signupModel.FirstName" autocomplete="given-name" />
+                    <ValidationMessage For="@(() => signupModel.FirstName)" />
+                </div>
+                <div class="form-field">
+                    <label for="signup-last-name">Last name</label>
+                    <InputText id="signup-last-name" class="form-control" @bind-Value="signupModel.LastName" autocomplete="family-name" />
+                    <ValidationMessage For="@(() => signupModel.LastName)" />
+                </div>
+            </div>
+            <div class="form-field">
+                <label for="signup-email">Email</label>
+                <InputText id="signup-email" class="form-control" @bind-Value="signupModel.Email" type="email" autocomplete="email" />
+                <ValidationMessage For="@(() => signupModel.Email)" />
+            </div>
+            <div class="form-field">
+                <label for="signup-password">Password</label>
+                <InputText id="signup-password" class="form-control" @bind-Value="signupModel.Password" type="password" autocomplete="new-password" />
+                <ValidationMessage For="@(() => signupModel.Password)" />
+            </div>
+            <button class="btn btn-primary account-submit" type="submit">Create account</button>
+        </EditForm>
+
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <p class="account-message @(signupSucceeded ? "success" : "error")" role="status">@message</p>
+        }
+
+        <p class="account-switch">Already have an account? <a href="login">Log in</a></p>
+    </div>
+</section>
+
+@code {
+    private readonly SignupModel signupModel = new();
+    private string? message;
+    private bool signupSucceeded;
+
+    private async Task HandleSignupAsync()
+    {
+        var user = await AuthService.SignUpAsync(
+            signupModel.FirstName,
+            signupModel.LastName,
+            signupModel.Email,
+            signupModel.Password);
+        signupSucceeded = user is not null;
+
+        if (signupSucceeded)
+        {
+            NavigationManager.NavigateTo("account");
+            return;
+        }
+
+        message = "An account with that email already exists.";
+    }
+
+    private sealed class SignupModel
+    {
+        [Required]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required, MinLength(1)]
+        public string Password { get; set; } = string.Empty;
+    }
+}

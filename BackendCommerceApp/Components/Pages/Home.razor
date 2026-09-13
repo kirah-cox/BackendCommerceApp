@@ -16,7 +16,7 @@
         @foreach (var category in ProductCatalog.Categories)
         {
             <a class="category-card" href="@($"/category/{category.Slug}")">
-                <div class="category-icon">@category.Icon</div>
+                <div class="category-icon category-icon-@category.Slug" aria-hidden="true"></div>
                 <div class="category-name">@category.Name</div>
                 <div class="category-count">@(productCounts.GetValueOrDefault(category.Slug)) items</div>
             </a>

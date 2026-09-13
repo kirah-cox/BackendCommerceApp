@@ -1,19 +1,33 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+@using BackendCommerceApp.Services
+@inject AuthService AuthService
 
 <div class="page">
-    <div class="sidebar @(sidebarVisible ? "" : "sidebar-collapsed")">
+    <div class="sidebar">
         <NavMenu />
     </div>
 
     <main>
         <div class="top-row px-4">
-            <button class="btn btn-outline-secondary sidebar-toggle" @onclick="ToggleSidebar" title="Toggle menu">
-                ☰ Menu
-            </button>
+            <div class="top-search">
+                <input class="form-control" type="search" placeholder="Search products" aria-label="Search products" />
+            </div>
 
             <div class="auth-buttons">
-                <a class="btn btn-outline-primary" href="login">Log in</a>
-                <a class="btn btn-primary" href="signup">Sign up</a>
+                @if (AuthService.CurrentUser is { } currentUser)
+                {
+                    <span class="auth-greeting">Hello @currentUser.FirstName!</span>
+                }
+                else
+                {
+                    <a class="btn btn-outline-primary" href="login">Log in</a>
+                    <a class="btn btn-primary" href="signup">Sign up</a>
+                }
+
+                <button class="cart-button" type="button" aria-label="Shopping cart" title="Shopping cart">
+                    <span aria-hidden="true">🛒</span>
+                </button>
             </div>
         </div>
 
@@ -21,6 +35,7 @@
             @Body
         </article>
     </main>
+
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
@@ -30,10 +45,18 @@
 </div>
 
 @code {
-    private bool sidebarVisible;
-
-    private void ToggleSidebar()
+    protected override void OnInitialized()
     {
-        sidebarVisible = !sidebarVisible;
+        AuthService.CurrentUserChanged += HandleCurrentUserChanged;
+    }
+
+    private void HandleCurrentUserChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        AuthService.CurrentUserChanged -= HandleCurrentUserChanged;
     }
 }

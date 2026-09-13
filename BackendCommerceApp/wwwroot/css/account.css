@@ -1,0 +1,240 @@
+.account-page {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1fr);
+    gap: 3rem;
+    align-items: center;
+    max-width: 920px;
+    margin: 3rem auto;
+    padding: 2rem 0;
+}
+
+.account-intro {
+    padding: 1rem 0;
+}
+
+.account-intro h1 {
+    max-width: 16ch;
+    margin: 0.35rem 0 1rem;
+    color: #17324d;
+    font-size: clamp(2.2rem, 5vw, 4.3rem);
+    line-height: 0.98;
+}
+
+.account-intro p:not(.eyebrow) {
+    max-width: 34rem;
+    color: #5e6b75;
+    font-size: 1.05rem;
+}
+
+.eyebrow {
+    margin: 0;
+    color: #c45a35;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.account-panel {
+    padding: 2rem;
+    border: 1px solid #dce4e8;
+    border-top: 4px solid #c45a35;
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 1rem 2.5rem rgba(23, 50, 77, 0.08);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.form-field {
+    margin-bottom: 1rem;
+}
+
+.form-field label {
+    display: block;
+    margin-bottom: 0.4rem;
+    color: #17324d;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.account-panel .form-control {
+    min-height: 2.9rem;
+    border-color: #cbd7de;
+}
+
+.account-panel .form-control:focus {
+    border-color: #c45a35;
+    box-shadow: 0 0 0 0.2rem rgba(196, 90, 53, 0.15);
+}
+
+.account-submit {
+    width: 100%;
+    margin-top: 0.5rem;
+    background-color: #17324d;
+    border-color: #17324d;
+}
+
+.account-submit:hover,
+.account-submit:focus {
+    background-color: #254f70;
+    border-color: #254f70;
+}
+
+.account-message {
+    margin: 1rem 0 0;
+    padding: 0.75rem;
+    border-left: 3px solid;
+    font-size: 0.9rem;
+}
+
+.account-message.success {
+    color: #21633e;
+    border-color: #3d9b63;
+    background: #eef8f1;
+}
+
+.account-message.error {
+    color: #9a342b;
+    border-color: #d25d51;
+    background: #fff2f0;
+}
+
+.account-switch {
+    margin: 1.5rem 0 0;
+    color: #5e6b75;
+    text-align: center;
+}
+
+.account-switch a {
+    color: #c45a35;
+    font-weight: 600;
+}
+
+@media (max-width: 720px) {
+    .account-page {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+        margin: 1.5rem auto;
+        padding: 1rem 0;
+    }
+
+    .account-intro h1 {
+        font-size: 2.7rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .account-panel {
+        padding: 1.25rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+}
+
+.account-list-page {
+    max-width: 1180px;
+    margin: 2rem auto;
+}
+
+.account-list-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.account-list-heading h1 {
+    margin: 0.35rem 0 0.5rem;
+    color: #17324d;
+}
+
+.account-list-heading p:not(.eyebrow) {
+    margin: 0;
+    color: #5e6b75;
+}
+
+.account-table-wrap {
+    overflow-x: auto;
+    border: 1px solid #dce4e8;
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 0.75rem 2rem rgba(23, 50, 77, 0.06);
+}
+
+.account-table {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+}
+
+.account-table th,
+.account-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid #e8eef1;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.account-table th {
+    color: #17324d;
+    background: #f3f7f8;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.account-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.account-table tbody tr:hover {
+    background: #fff8f5;
+}
+
+.admin-status {
+    display: inline-block;
+    min-width: 2.5rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.admin-status.is-admin {
+    color: #21633e;
+    background: #dff3e6;
+}
+
+.admin-status.is-user {
+    color: #5e6b75;
+    background: #edf1f3;
+}
+
+.account-list-status {
+    padding: 2.5rem;
+    border: 1px dashed #cbd7de;
+    color: #5e6b75;
+    text-align: center;
+}
+
+.account-list-status h2 {
+    margin-top: 0;
+    color: #17324d;
+}
+
+@media (max-width: 720px) {
+    .account-list-heading {
+        align-items: start;
+        flex-direction: column;
+    }
+}
