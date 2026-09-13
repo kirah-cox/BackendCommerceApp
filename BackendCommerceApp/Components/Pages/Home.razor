@@ -1,5 +1,7 @@
 ﻿@page "/"
 @using BackendCommerceApp.Data
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext DbContext
 
 <PageTitle>Home</PageTitle>
 
@@ -16,27 +18,21 @@
             <a class="category-card" href="@($"/category/{category.Slug}")">
                 <div class="category-icon">@category.Icon</div>
                 <div class="category-name">@category.Name</div>
-                <div class="category-count">@ProductCatalog.ProductCountForCategory(category.Slug) items</div>
-            </a>
-        }
-    </div>
-</section>
-
-<section class="featured">
-    <h2>Featured Products</h2>
-    <div class="product-grid">
-        @foreach (var product in FeaturedProducts)
-        {
-            <a class="product-card" href="@($"/product/{product.Id}")">
-                <div class="product-image">@product.Icon</div>
-                <div class="product-name">@product.Name</div>
-                <div class="product-category">@ProductCatalog.GetCategory(product.CategorySlug)?.Name</div>
-                <div class="product-price">@product.Price.ToString("C")</div>
+                <div class="category-count">@(productCounts.GetValueOrDefault(category.Slug)) items</div>
             </a>
         }
     </div>
 </section>
 
 @code {
-    private List<CatalogProduct> FeaturedProducts { get; } = ProductCatalog.Products.Take(4).ToList();
+    private Dictionary<string, int> productCounts = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        productCounts = await DbContext.Products
+            .GroupBy(product => product.Category)
+            .Select(group => new { Category = group.Key, Count = group.Count() })
+            .ToDictionaryAsync(group => group.Category, group => group.Count);
+    }
 }
+

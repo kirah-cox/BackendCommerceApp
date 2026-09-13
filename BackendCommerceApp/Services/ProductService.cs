@@ -15,12 +15,13 @@ public class ProductService
         _logger = logger;
     }
 
-    public async Task<Product> AddProductAsync(string name, string description, decimal price)
+    public async Task<Product> AddProductAsync(string name, string description, string category, decimal price)
     {
         var product = new Product
         {
             Name = name,
             Description = description,
+            Category = category,
             Price = price
         };
 

@@ -1,5 +1,8 @@
 @page "/category/{Slug}"
 @using BackendCommerceApp.Data
+@using BackendCommerceApp.Models
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext DbContext
 
 <PageTitle>@(category?.Name ?? "Category not found")</PageTitle>
 
@@ -21,7 +24,7 @@ else
         @foreach (var product in products)
         {
             <a class="product-card" href="@($"/product/{product.Id}")">
-                <div class="product-image">@product.Icon</div>
+                <div class="product-image">🛍️</div>
                 <div class="product-name">@product.Name</div>
                 <div class="product-price">@product.Price.ToString("C")</div>
             </a>
@@ -34,11 +37,13 @@ else
     public string Slug { get; set; } = string.Empty;
 
     private CatalogCategory? category;
-    private List<CatalogProduct> products = new();
+    private List<Product> products = new();
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
         category = ProductCatalog.GetCategory(Slug);
-        products = ProductCatalog.Products.Where(p => p.CategorySlug == Slug).ToList();
+        products = category is null
+            ? new List<Product>()
+            : await DbContext.Products.Where(product => product.Category == Slug).ToListAsync();
     }
 }

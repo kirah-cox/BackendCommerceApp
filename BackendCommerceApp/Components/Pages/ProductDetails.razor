@@ -1,5 +1,8 @@
 @page "/product/{Id:int}"
 @using BackendCommerceApp.Data
+@using BackendCommerceApp.Models
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext DbContext
 
 <PageTitle>@(product?.Name ?? "Product not found")</PageTitle>
 
@@ -9,10 +12,10 @@
 }
 else
 {
-    <a class="back-link" href="@($"/category/{product.CategorySlug}")">&larr; Back to @categoryName</a>
+    <a class="back-link" href="@($"/category/{product.Category}")">&larr; Back to @categoryName</a>
 
     <section class="product-detail">
-        <div class="product-detail-image">@product.Icon</div>
+        <div class="product-detail-image">🛍️</div>
         <div class="product-detail-info">
             <h1>@product.Name</h1>
             <p class="product-detail-category">@categoryName</p>
@@ -27,12 +30,12 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    private CatalogProduct? product;
+    private Product? product;
     private string categoryName = string.Empty;
 
-    protected override void OnParametersSet()
+    protected override async Task OnParametersSetAsync()
     {
-        product = ProductCatalog.GetProduct(Id);
-        categoryName = product is null ? string.Empty : ProductCatalog.GetCategory(product.CategorySlug)?.Name ?? product.CategorySlug;
+        product = await DbContext.Products.FirstOrDefaultAsync(candidate => candidate.Id == Id);
+        categoryName = product is null ? string.Empty : ProductCatalog.GetCategory(product.Category)?.Name ?? product.Category;
     }
 }

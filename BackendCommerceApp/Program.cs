@@ -1,5 +1,6 @@
 using BackendCommerceApp.Components;
 using BackendCommerceApp.Data;
+using BackendCommerceApp.Models;
 using BackendCommerceApp.Services;
 using DotNetEnv.Configuration;
 using Microsoft.AspNetCore.DataProtection;
@@ -45,6 +46,26 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await dbContext.Database.MigrateAsync();
+
+    if (!await dbContext.Products.AnyAsync())
+    {
+        dbContext.Products.AddRange(
+            new Product { Name = "Wireless Headphones", Description = "Noise-cancelling over-ear headphones with Bluetooth connectivity.", Category = "electronics", Price = 79.99m },
+            new Product { Name = "Smart Watch", Description = "Fitness-focused smartwatch with heart-rate monitoring and GPS.", Category = "electronics", Price = 129.99m },
+            new Product { Name = "Running Shoes", Description = "Lightweight cushioned shoes designed for daily road running.", Category = "clothing", Price = 64.50m },
+            new Product { Name = "Denim Jacket", Description = "Classic mid-weight denim jacket with a comfortable regular fit.", Category = "clothing", Price = 58.00m },
+            new Product { Name = "Coffee Maker", Description = "Programmable drip coffee maker with a twelve-cup glass carafe.", Category = "home-garden", Price = 44.95m },
+            new Product { Name = "Garden Tool Set", Description = "Five-piece stainless steel hand tool set for everyday gardening.", Category = "home-garden", Price = 32.49m },
+            new Product { Name = "Yoga Mat", Description = "Non-slip, six-millimeter exercise mat with a textured surface.", Category = "sports-outdoors", Price = 24.99m },
+            new Product { Name = "Camping Tent", Description = "Two-person waterproof tent with a quick-pitch frame.", Category = "sports-outdoors", Price = 89.00m },
+            new Product { Name = "Building Blocks Set", Description = "Creative building set with 500 colorful pieces for ages six and up.", Category = "toys-games", Price = 29.99m },
+            new Product { Name = "Board Game Bundle", Description = "Family game bundle containing three strategy and party games.", Category = "toys-games", Price = 39.95m },
+            new Product { Name = "Mystery Novel", Description = "A fast-paced detective mystery set in a remote coastal town.", Category = "books", Price = 14.99m },
+            new Product { Name = "Cookbook", Description = "A practical collection of simple seasonal recipes for home cooks.", Category = "books", Price = 22.50m }
+        );
+
+        await dbContext.SaveChangesAsync();
+    }
 }
 
 // Configure the HTTP request pipeline.
