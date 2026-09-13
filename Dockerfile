@@ -22,7 +22,4 @@ EXPOSE 8443
 
 ENV ASPNETCORE_URLS=http://+:8080
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD dotnet --version || exit 1
-
 ENTRYPOINT ["dotnet", "BackendCommerceApp.dll"]

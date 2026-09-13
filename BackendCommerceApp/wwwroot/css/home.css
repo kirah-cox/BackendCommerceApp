@@ -1,10 +1,23 @@
 .hero {
     text-align: center;
-    padding: 2rem 1rem;
+    margin: 1.5rem 0 2.5rem;
+    padding: 3rem 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: 0.5rem;
+    background: linear-gradient(135deg, #fff 0%, #edf5f6 100%);
+    box-shadow: 0 1rem 2.5rem rgba(23, 50, 77, 0.06);
+}
+
+.hero h1 {
+    margin: 0;
+    color: var(--ink);
+    font-size: clamp(2.75rem, 6vw, 5rem);
+    line-height: 1;
 }
 
 .hero p {
-    color: #616161;
+    margin-top: 1.25rem;
+    color: var(--muted);
 }
 
 .categories,
@@ -25,22 +38,44 @@
     align-items: center;
     text-align: center;
     padding: 1.25rem 0.5rem;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--line);
     border-radius: 0.5rem;
     text-decoration: none;
     color: inherit;
-    background: #fff;
+    background: var(--surface);
     transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
 }
 
 .category-card:hover {
-    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    border-color: var(--coral);
+    box-shadow: 0 0.75rem 1.5rem rgba(23, 50, 77, 0.1);
     transform: translateY(-2px);
 }
 
 .category-icon {
-    font-size: 2rem;
+    display: grid;
+    width: 3.25rem;
+    height: 3.25rem;
+    place-items: center;
+    border: 1px solid rgba(196, 90, 53, 0.3);
+    border-radius: 50%;
+    color: var(--coral);
+    background: var(--coral-soft);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
 }
+
+.category-icon::before {
+    content: "";
+}
+
+.category-icon-electronics::before { content: "TECH"; }
+.category-icon-clothing::before { content: "STYLE"; }
+.category-icon-home-garden::before { content: "HOME"; }
+.category-icon-sports-outdoors::before { content: "MOVE"; }
+.category-icon-toys-games::before { content: "PLAY"; }
+.category-icon-books::before { content: "READ"; }
 
 .category-name {
     font-weight: 600;
@@ -49,18 +84,25 @@
 
 .category-count {
     font-size: 0.85rem;
-    color: #757575;
+    color: var(--muted);
 }
 
 .product-card {
     padding: 1.25rem 0.5rem;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--line);
     border-radius: 0.5rem;
     text-align: center;
-    background: #fff;
+    background: var(--surface);
 }
 
 .product-image {
+    display: grid;
+    width: 3.5rem;
+    height: 3.5rem;
+    place-items: center;
+    border-radius: 0.5rem;
+    color: var(--ink);
+    background: var(--wash);
     font-size: 2rem;
 }
 
@@ -71,11 +113,11 @@
 
 .product-category {
     font-size: 0.85rem;
-    color: #757575;
+    color: var(--muted);
 }
 
 .product-price {
     margin-top: 0.25rem;
     font-weight: 600;
-    color: #1b6ec2;
+    color: var(--coral);
 }

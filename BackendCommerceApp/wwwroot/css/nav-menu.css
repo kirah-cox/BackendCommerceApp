@@ -1,10 +1,34 @@
 .top-row {
     min-height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+    background-color: var(--ink);
+}
+
+.sidebar .top-row {
+    background-color: var(--ink);
+    border-bottom: 1px solid var(--ink-soft);
+}
+
+.sidebar .top-row a:first-child {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: nowrap;
+}
+
+.sidebar .top-row .container-fluid {
+    justify-content: center;
+}
+
+.sidebar .navbar-brand {
+    margin: 0;
 }
 
 .navbar-brand {
-    font-size: 1.1rem;
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 1.5rem;
+    font-weight: 400;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .bi {
@@ -15,6 +39,17 @@
     margin-right: 0.75rem;
     top: -1px;
     background-size: cover;
+}
+
+.nav-icon-spacer,
+.nav-item .nav-link > .bi {
+    flex: 0 0 1.25rem;
+}
+
+.nav-icon-spacer {
+    display: inline-block;
+    height: 1.25rem;
+    margin-right: 0.75rem;
 }
 
 .bi-house-door-fill-nav-menu {
@@ -43,7 +78,7 @@
     }
 
     .nav-item .nav-link {
-        color: #d7d7d7;
+        color: #dce8ed;
         background: none;
         border: none;
         border-radius: 4px;
@@ -52,15 +87,17 @@
         align-items: center;
         line-height: 3rem;
         width: 100%;
+        white-space: nowrap;
     }
 
 .nav-item a.active {
-    background-color: rgba(255,255,255,0.37);
+    background-color: var(--coral);
+    box-shadow: inset 3px 0 0 #f6c2ae;
     color: white;
 }
 
 .nav-item .nav-link:hover {
-    background-color: rgba(255,255,255,0.1);
+    background-color: rgba(196, 90, 53, 0.35);
     color: white;
 }
 

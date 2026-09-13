@@ -39,6 +39,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<AuthService>();
 
 var app = builder.Build();
 
@@ -63,6 +64,21 @@ using (var scope = app.Services.CreateScope())
             new Product { Name = "Mystery Novel", Description = "A fast-paced detective mystery set in a remote coastal town.", Category = "books", Price = 14.99m },
             new Product { Name = "Cookbook", Description = "A practical collection of simple seasonal recipes for home cooks.", Category = "books", Price = 22.50m }
         );
+
+        await dbContext.SaveChangesAsync();
+    }
+
+    const string adminEmail = "admin@backendcommerce.local";
+    if (!await dbContext.LoginInformation.AnyAsync(user => user.Email == adminEmail))
+    {
+        dbContext.LoginInformation.Add(new LoginInformation
+        {
+            FirstName = "Admin",
+            LastName = "User",
+            Email = adminEmail,
+            Password = "Admin123!",
+            Admin = true
+        });
 
         await dbContext.SaveChangesAsync();
     }

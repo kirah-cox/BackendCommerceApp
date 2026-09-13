@@ -2,11 +2,15 @@
     display: flex;
     align-items: center;
     gap: 1rem;
-    padding: 1.5rem 0;
+    padding: 2rem 0 1.5rem;
+    border-bottom: 1px solid var(--line);
 }
 
 .category-header-icon {
-    font-size: 3rem;
+    flex: 0 0 auto;
+    width: 4.5rem;
+    height: 4.5rem;
+    font-size: 0.75rem;
 }
 
 .product-grid {
@@ -21,16 +25,17 @@
     align-items: center;
     text-align: center;
     padding: 1.25rem 0.5rem;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--line);
     border-radius: 0.5rem;
     text-decoration: none;
     color: inherit;
-    background: #fff;
+    background: var(--surface);
     transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
 }
 
 .product-card:hover {
-    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    border-color: var(--coral);
+    box-shadow: 0 0.75rem 1.5rem rgba(23, 50, 77, 0.1);
     transform: translateY(-2px);
 }
 
@@ -46,5 +51,5 @@
 .product-price {
     margin-top: 0.25rem;
     font-weight: 600;
-    color: #1b6ec2;
+    color: var(--coral);
 }

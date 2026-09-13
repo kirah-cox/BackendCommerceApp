@@ -1,0 +1,68 @@
+@page "/login"
+@using System.ComponentModel.DataAnnotations
+@using BackendCommerceApp.Services
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Log in</PageTitle>
+
+<section class="account-page">
+    <div class="account-intro">
+        <p class="eyebrow">Welcome back</p>
+        <h1>Log in to your account</h1>
+        <p>Pick up where you left off and keep your shopping in one place.</p>
+    </div>
+
+    <div class="account-panel">
+        <EditForm Model="loginModel" OnValidSubmit="HandleLoginAsync">
+            <DataAnnotationsValidator />
+            <div class="form-field">
+                <label for="login-email">Email</label>
+                <InputText id="login-email" class="form-control" @bind-Value="loginModel.Email" type="email" autocomplete="email" />
+                <ValidationMessage For="@(() => loginModel.Email)" />
+            </div>
+            <div class="form-field">
+                <label for="login-password">Password</label>
+                <InputText id="login-password" class="form-control" @bind-Value="loginModel.Password" type="password" autocomplete="current-password" />
+                <ValidationMessage For="@(() => loginModel.Password)" />
+            </div>
+            <button class="btn btn-primary account-submit" type="submit">Log in</button>
+        </EditForm>
+
+        @if (!string.IsNullOrWhiteSpace(message))
+        {
+            <p class="account-message @(loginSucceeded ? "success" : "error")" role="status">@message</p>
+        }
+
+        <p class="account-switch">New here? <a href="signup">Create an account</a></p>
+    </div>
+</section>
+
+@code {
+    private readonly LoginModel loginModel = new();
+    private string? message;
+    private bool loginSucceeded;
+
+    private async Task HandleLoginAsync()
+    {
+        var user = await AuthService.LoginAsync(loginModel.Email, loginModel.Password);
+        loginSucceeded = user is not null;
+
+        if (loginSucceeded)
+        {
+            NavigationManager.NavigateTo("account");
+            return;
+        }
+
+        message = "That email and password combination was not found.";
+    }
+
+    private sealed class LoginModel
+    {
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [Required]
+        public string Password { get; set; } = string.Empty;
+    }
+}

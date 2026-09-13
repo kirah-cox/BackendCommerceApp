@@ -1,0 +1,68 @@
+@page "/account"
+@using BackendCommerceApp.Services
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Account</PageTitle>
+
+@if (AuthService.CurrentUser is null)
+{
+    <section class="account-list-page">
+        <div class="account-list-status">
+            <p class="eyebrow">Account</p>
+            <h1>Log in to view your account</h1>
+            <p>Your account information will appear here after you log in.</p>
+            <a class="btn btn-primary" href="login">Log in</a>
+        </div>
+    </section>
+}
+else
+{
+    var user = AuthService.CurrentUser;
+
+    <section class="account-list-page">
+        <div class="account-list-heading">
+            <div>
+                <p class="eyebrow">Your account</p>
+                <h1>@user.FirstName @user.LastName</h1>
+                <p>Personal information stored in your account.</p>
+            </div>
+            <button class="btn btn-outline-secondary" @onclick="LogOut">Log out</button>
+        </div>
+
+        <div class="account-details-grid">
+            <div class="account-detail">
+                <span class="account-detail-label">User ID</span>
+                <strong>@user.UserId</strong>
+            </div>
+            <div class="account-detail">
+                <span class="account-detail-label">First name</span>
+                <strong>@user.FirstName</strong>
+            </div>
+            <div class="account-detail">
+                <span class="account-detail-label">Last name</span>
+                <strong>@user.LastName</strong>
+            </div>
+            <div class="account-detail">
+                <span class="account-detail-label">Email</span>
+                <strong>@user.Email</strong>
+            </div>
+            <div class="account-detail">
+                <span class="account-detail-label">Password</span>
+                <strong>@user.Password</strong>
+            </div>
+            <div class="account-detail">
+                <span class="account-detail-label">Admin</span>
+                <strong>@(user.Admin ? "Yes" : "No")</strong>
+            </div>
+        </div>
+    </section>
+}
+
+@code {
+    private void LogOut()
+    {
+        AuthService.Logout();
+        NavigationManager.NavigateTo("login");
+    }
+}

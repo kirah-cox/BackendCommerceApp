@@ -13,7 +13,7 @@
 else
 {
     <section class="category-header">
-        <div class="category-header-icon">@category.Icon</div>
+        <div class="category-header-icon category-icon-@category.Slug" aria-hidden="true"></div>
         <div>
             <h1>@category.Name</h1>
             <p>@products.Count item(s) in this category</p>
@@ -24,9 +24,9 @@ else
         @foreach (var product in products)
         {
             <a class="product-card" href="@($"/product/{product.Id}")">
-                <div class="product-image">🛍️</div>
+                <div class="product-image" aria-hidden="true">🛍️</div>
                 <div class="product-name">@product.Name</div>
-                <div class="product-price">@product.Price.ToString("C")</div>
+                <div class="product-price">$@product.Price.ToString("0.00")</div>
             </a>
         }
     </div>
