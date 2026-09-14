@@ -1,5 +1,6 @@
 using BackendCommerceApp.Data;
 using BackendCommerceApp.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace BackendCommerceApp.Services;
@@ -13,6 +14,23 @@ public class ProductService
     {
         _dbContext = dbContext;
         _logger = logger;
+    }
+
+    public async Task<List<Product>> SearchProductsAsync(string query, int maxResults = 8)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return new List<Product>();
+        }
+
+        var trimmedQuery = query.Trim().ToLower();
+
+        return await _dbContext.Products
+            .Where(product => product.Name.ToLower().Contains(trimmedQuery) ||
+                              product.Description.ToLower().Contains(trimmedQuery) ||
+                              product.Category.ToLower().Contains(trimmedQuery))
+            .Take(maxResults)
+            .ToListAsync();
     }
 
     public async Task<Product> AddProductAsync(string name, string description, string category, decimal price)

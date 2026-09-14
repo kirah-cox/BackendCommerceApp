@@ -1,0 +1,89 @@
+@page "/cart"
+@implements IDisposable
+@using BackendCommerceApp.Services
+@inject CartService CartService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Shopping Cart</PageTitle>
+
+<div class="cart-page">
+    <h1>Shopping Cart</h1>
+
+    @if (!CartService.Items.Any())
+    {
+        <div class="empty-cart-state">
+            <div class="empty-icon" aria-hidden="true">🛒</div>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added any items to your cart yet.</p>
+            <a href="/" class="btn btn-primary">Start Shopping</a>
+        </div>
+    }
+    else
+    {
+        <div class="cart-grid">
+            <div class="cart-items-section">
+                @foreach (var item in CartService.Items)
+                {
+                    <div class="cart-item-row">
+                        <div class="cart-item-icon">🛍️</div>
+                        <div class="cart-item-info">
+                            <a href="@($"/product/{item.Product.Id}")" class="cart-item-title">@item.Product.Name</a>
+                            <div class="cart-item-unit-price">$@item.Product.Price.ToString("0.00") each</div>
+                        </div>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" type="button" @onclick="() => CartService.UpdateQuantity(item.Product.Id, item.Quantity - 1)" aria-label="Decrease quantity">-</button>
+                            <span class="qty-count">@item.Quantity</span>
+                            <button class="qty-btn" type="button" @onclick="() => CartService.UpdateQuantity(item.Product.Id, item.Quantity + 1)" aria-label="Increase quantity">+</button>
+                        </div>
+                        <div class="cart-item-total">$@item.TotalPrice.ToString("0.00")</div>
+                        <button class="remove-item-btn" type="button" @onclick="() => CartService.RemoveFromCart(item.Product.Id)" title="Remove item" aria-label="Remove item">&times;</button>
+                    </div>
+                }
+
+                <div class="cart-footer-actions">
+                    <button class="btn btn-outline-secondary" type="button" @onclick="CartService.ClearCart">Clear Cart</button>
+                    <a href="/" class="btn btn-outline-primary">Continue Shopping</a>
+                </div>
+            </div>
+
+            <div class="cart-summary-panel">
+                <h2>Order Summary</h2>
+                <div class="summary-line">
+                    <span>Total Items</span>
+                    <span>@CartService.TotalItems</span>
+                </div>
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span>$@CartService.Subtotal.ToString("0.00")</span>
+                </div>
+                <div class="summary-line">
+                    <span>Estimated Shipping</span>
+                    <span class="free-shipping">FREE</span>
+                </div>
+                <hr />
+                <div class="summary-line total-line">
+                    <span>Grand Total</span>
+                    <span>$@CartService.Subtotal.ToString("0.00")</span>
+                </div>
+                <a href="checkout" class="btn btn-primary checkout-btn">Proceed to Checkout</a>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        CartService.CartChanged += HandleCartChanged;
+    }
+
+    private void HandleCartChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        CartService.CartChanged -= HandleCartChanged;
+    }
+}

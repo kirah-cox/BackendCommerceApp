@@ -1,0 +1,193 @@
+@page "/checkout"
+@implements IDisposable
+@using BackendCommerceApp.Services
+@using BackendCommerceApp.Models
+@using System.ComponentModel.DataAnnotations
+@inject CartService CartService
+@inject AuthService AuthService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Checkout</PageTitle>
+
+<div class="checkout-page">
+    <h1>Checkout</h1>
+
+    @if (orderPlaced)
+    {
+        <div class="order-success-card">
+            <div class="success-icon" aria-hidden="true">🎉</div>
+            <h2>Thank you for your order!</h2>
+            <p>Your order <strong>#@orderNumber</strong> has been successfully placed.</p>
+            <p class="success-email">We'll send a confirmation email to <strong>@shippingEmail</strong> once your package ships.</p>
+            <a href="/" class="btn btn-primary">Return to Home</a>
+        </div>
+    }
+    else if (!CartService.Items.Any())
+    {
+        <div class="empty-cart-state">
+            <div class="empty-icon" aria-hidden="true">🛒</div>
+            <h2>Your cart is empty</h2>
+            <p>Please add some items to your cart before proceeding to checkout.</p>
+            <a href="/" class="btn btn-primary">Start Shopping</a>
+        </div>
+    }
+    else
+    {
+        <div class="checkout-grid">
+            <div class="checkout-form-section">
+                <h2>Shipping & Payment Details</h2>
+
+                <EditForm Model="checkoutModel" OnValidSubmit="HandlePlaceOrder">
+                    <DataAnnotationsValidator />
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name</label>
+                            <InputText id="firstName" class="form-control" @bind-Value="checkoutModel.FirstName" />
+                            <ValidationMessage For="() => checkoutModel.FirstName" />
+                        </div>
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <InputText id="lastName" class="form-control" @bind-Value="checkoutModel.LastName" />
+                            <ValidationMessage For="() => checkoutModel.LastName" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <InputText id="email" type="email" class="form-control" @bind-Value="checkoutModel.Email" />
+                        <ValidationMessage For="() => checkoutModel.Email" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Shipping Address</label>
+                        <InputText id="address" class="form-control" @bind-Value="checkoutModel.Address" />
+                        <ValidationMessage For="() => checkoutModel.Address" />
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <InputText id="city" class="form-control" @bind-Value="checkoutModel.City" />
+                            <ValidationMessage For="() => checkoutModel.City" />
+                        </div>
+                        <div class="form-group">
+                            <label for="postalCode">Postal Code</label>
+                            <InputText id="postalCode" class="form-control" @bind-Value="checkoutModel.PostalCode" />
+                            <ValidationMessage For="() => checkoutModel.PostalCode" />
+                        </div>
+                    </div>
+
+                    <h3 class="payment-title">Payment Method</h3>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="Card" checked="@(checkoutModel.PaymentMethod == "Card")" @onchange='() => checkoutModel.PaymentMethod = "Card"' />
+                            <span>💳 Credit or Debit Card</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="PayPal" checked="@(checkoutModel.PaymentMethod == "PayPal")" @onchange='() => checkoutModel.PaymentMethod = "PayPal"' />
+                            <span>🅿️ PayPal</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="paymentMethod" value="COD" checked="@(checkoutModel.PaymentMethod == "COD")" @onchange='() => checkoutModel.PaymentMethod = "COD"' />
+                            <span>💵 Cash on Delivery</span>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary place-order-btn">Place Order ($@CartService.Subtotal.ToString("0.00"))</button>
+                </EditForm>
+            </div>
+
+            <div class="checkout-summary-panel">
+                <h2>Order Summary</h2>
+                <div class="checkout-items-list">
+                    @foreach (var item in CartService.Items)
+                    {
+                        <div class="summary-item">
+                            <div class="item-details">
+                                <span class="item-title">@item.Product.Name</span>
+                                <span class="item-qty">Qty: @item.Quantity</span>
+                            </div>
+                            <span class="item-price">$@item.TotalPrice.ToString("0.00")</span>
+                        </div>
+                    }
+                </div>
+                <hr />
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span>$@CartService.Subtotal.ToString("0.00")</span>
+                </div>
+                <div class="summary-line">
+                    <span>Shipping</span>
+                    <span class="free-shipping">FREE</span>
+                </div>
+                <hr />
+                <div class="summary-line total-line">
+                    <span>Total</span>
+                    <span>$@CartService.Subtotal.ToString("0.00")</span>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private CheckoutModel checkoutModel = new();
+    private bool orderPlaced;
+    private string orderNumber = string.Empty;
+    private string shippingEmail = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        CartService.CartChanged += HandleCartChanged;
+
+        if (AuthService.CurrentUser is { } user)
+        {
+            checkoutModel.FirstName = user.FirstName;
+            checkoutModel.LastName = user.LastName;
+            checkoutModel.Email = user.Email;
+        }
+    }
+
+    private void HandleCartChanged()
+    {
+        _ = InvokeAsync(StateHasChanged);
+    }
+
+    private void HandlePlaceOrder()
+    {
+        orderNumber = "ORD-" + Random.Shared.Next(100000, 999999);
+        shippingEmail = checkoutModel.Email;
+        CartService.ClearCart();
+        orderPlaced = true;
+    }
+
+    public void Dispose()
+    {
+        CartService.CartChanged -= HandleCartChanged;
+    }
+
+    public class CheckoutModel
+    {
+        [Required(ErrorMessage = "First name is required")]
+        public string FirstName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Last name is required")]
+        public string LastName { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Email { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Shipping address is required")]
+        public string Address { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "City is required")]
+        public string City { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Postal code is required")]
+        public string PostalCode { get; set; } = string.Empty;
+
+        public string PaymentMethod { get; set; } = "Card";
+    }
+}

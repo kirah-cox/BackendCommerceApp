@@ -1,8 +1,10 @@
 @page "/product/{Id:int}"
 @using BackendCommerceApp.Data
 @using BackendCommerceApp.Models
+@using BackendCommerceApp.Services
 @using Microsoft.EntityFrameworkCore
 @inject AppDbContext DbContext
+@inject CartService CartService
 
 <PageTitle>@(product?.Name ?? "Product not found")</PageTitle>
 
@@ -21,7 +23,22 @@ else
             <p class="product-detail-category">@categoryName</p>
             <p class="product-detail-price">$@product.Price.ToString("0.00")</p>
             <p class="product-detail-description">@product.Description</p>
-            <button class="btn btn-primary">Add to Cart</button>
+
+            <div class="add-to-cart-controls">
+                <div class="quantity-selector">
+                    <button type="button" class="btn btn-outline-secondary" @onclick="DecreaseQuantity" disabled="@(quantity <= 1)">-</button>
+                    <span class="quantity-value">@quantity</span>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="IncreaseQuantity">+</button>
+                </div>
+                <button type="button" class="btn btn-primary btn-lg" @onclick="AddToCart">Add to Cart</button>
+            </div>
+
+            @if (showAddedNotification)
+            {
+                <div class="added-toast">
+                    ✓ Added @quantity item(s) to your cart! <a href="cart">View Cart</a> or <a href="checkout">Checkout</a>
+                </div>
+            }
         </div>
     </section>
 }
@@ -32,10 +49,26 @@ else
 
     private Product? product;
     private string categoryName = string.Empty;
+    private int quantity = 1;
+    private bool showAddedNotification;
 
     protected override async Task OnParametersSetAsync()
     {
         product = await DbContext.Products.FirstOrDefaultAsync(candidate => candidate.Id == Id);
         categoryName = product is null ? string.Empty : ProductCatalog.GetCategory(product.Category)?.Name ?? product.Category;
+        quantity = 1;
+        showAddedNotification = false;
+    }
+
+    private void IncreaseQuantity() => quantity++;
+    private void DecreaseQuantity() { if (quantity > 1) quantity--; }
+
+    private void AddToCart()
+    {
+        if (product is not null)
+        {
+            CartService.AddToCart(product, quantity);
+            showAddedNotification = true;
+        }
     }
 }

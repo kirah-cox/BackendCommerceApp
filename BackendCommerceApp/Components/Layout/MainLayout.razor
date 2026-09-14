@@ -2,6 +2,7 @@
 @implements IDisposable
 @using BackendCommerceApp.Services
 @inject AuthService AuthService
+@inject CartService CartService
 
 <div class="page">
     <div class="sidebar">
@@ -11,7 +12,7 @@
     <main>
         <div class="top-row px-4">
             <div class="top-search">
-                <input class="form-control" type="search" placeholder="Search products" aria-label="Search products" />
+                <SearchBar Placeholder="Search products..." />
             </div>
 
             <div class="auth-buttons">
@@ -25,8 +26,12 @@
                     <a class="btn btn-primary" href="signup">Sign up</a>
                 }
 
-                <button class="cart-button" type="button" aria-label="Shopping cart" title="Shopping cart">
+                <button class="cart-button" type="button" @onclick="ToggleCart" aria-label="Shopping cart" title="Shopping cart">
                     <span aria-hidden="true">🛒</span>
+                    @if (CartService.TotalItems > 0)
+                    {
+                        <span class="cart-badge">@CartService.TotalItems</span>
+                    }
                 </button>
             </div>
         </div>
@@ -36,6 +41,7 @@
         </article>
     </main>
 
+    <CartOverlay @bind-IsOpen="isCartOpen" />
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
@@ -45,18 +51,27 @@
 </div>
 
 @code {
+    private bool isCartOpen;
+
     protected override void OnInitialized()
     {
-        AuthService.CurrentUserChanged += HandleCurrentUserChanged;
+        AuthService.CurrentUserChanged += HandleStateChanged;
+        CartService.CartChanged += HandleStateChanged;
     }
 
-    private void HandleCurrentUserChanged()
+    private void ToggleCart()
+    {
+        isCartOpen = !isCartOpen;
+    }
+
+    private void HandleStateChanged()
     {
         _ = InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
-        AuthService.CurrentUserChanged -= HandleCurrentUserChanged;
+        AuthService.CurrentUserChanged -= HandleStateChanged;
+        CartService.CartChanged -= HandleStateChanged;
     }
 }

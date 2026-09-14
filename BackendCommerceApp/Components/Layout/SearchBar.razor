@@ -1,0 +1,119 @@
+@using BackendCommerceApp.Data
+@using BackendCommerceApp.Models
+@using BackendCommerceApp.Services
+@inject ProductService ProductService
+
+<div class="search-bar-container @CssClass">
+    <div class="search-input-wrapper">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="text"
+               class="form-control search-input"
+               placeholder="@Placeholder"
+               value="@searchQuery"
+               @oninput="HandleSearchInput"
+               @onfocus="HandleFocus"
+               @onblur="HandleBlur"
+               aria-label="Search products" />
+        @if (!string.IsNullOrEmpty(searchQuery))
+        {
+            <button class="clear-search-btn" type="button" @onclick="ClearSearch" title="Clear search" aria-label="Clear search">&times;</button>
+        }
+    </div>
+
+    @if (showResults && !string.IsNullOrWhiteSpace(searchQuery))
+    {
+        <div class="search-results-dropdown">
+            @if (isSearching)
+            {
+                <div class="search-status">Searching products...</div>
+            }
+            else if (searchResults.Any())
+            {
+                <div class="search-results-header">Found @searchResults.Count product(s)</div>
+                @foreach (var product in searchResults)
+                {
+                    <a href="@($"/product/{product.Id}")" class="search-result-item" @onclick="SelectResult">
+                        <div class="search-result-info">
+                            <span class="search-result-name">@product.Name</span>
+                            <span class="search-result-category">@GetCategoryName(product.Category)</span>
+                        </div>
+                        <span class="search-result-price">$@product.Price.ToString("0.00")</span>
+                    </a>
+                }
+            }
+            else
+            {
+                <div class="search-no-results">No products found matching "@searchQuery"</div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Placeholder { get; set; } = "Search products...";
+
+    [Parameter]
+    public string CssClass { get; set; } = string.Empty;
+
+    private string searchQuery = string.Empty;
+    private List<Product> searchResults = new();
+    private bool isSearching;
+    private bool showResults;
+
+    private async Task HandleSearchInput(ChangeEventArgs e)
+    {
+        searchQuery = e.Value?.ToString() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(searchQuery))
+        {
+            searchResults.Clear();
+            isSearching = false;
+            showResults = false;
+            return;
+        }
+
+        showResults = true;
+        isSearching = true;
+
+        try
+        {
+            searchResults = await ProductService.SearchProductsAsync(searchQuery);
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+
+    private void HandleFocus()
+    {
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            showResults = true;
+        }
+    }
+
+    private async Task HandleBlur()
+    {
+        await Task.Delay(250);
+        showResults = false;
+    }
+
+    private void SelectResult()
+    {
+        showResults = false;
+    }
+
+    private void ClearSearch()
+    {
+        searchQuery = string.Empty;
+        searchResults.Clear();
+        showResults = false;
+    }
+
+    private string GetCategoryName(string categorySlug)
+    {
+        return ProductCatalog.GetCategory(categorySlug)?.Name ?? categorySlug;
+    }
+}
