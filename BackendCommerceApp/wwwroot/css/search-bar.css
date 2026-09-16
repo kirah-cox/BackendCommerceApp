@@ -15,7 +15,6 @@
     color: var(--muted, #64748b);
     font-size: 1rem;
     pointer-events: none;
-    z-index: 2;
 }
 
 .search-input-wrapper .search-input {
