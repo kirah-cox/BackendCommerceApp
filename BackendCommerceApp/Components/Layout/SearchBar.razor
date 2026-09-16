@@ -80,6 +80,11 @@
         {
             searchResults = await ProductService.SearchProductsAsync(searchQuery);
         }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error searching products: {ex.Message}");
+            searchResults.Clear();
+        }
         finally
         {
             isSearching = false;
