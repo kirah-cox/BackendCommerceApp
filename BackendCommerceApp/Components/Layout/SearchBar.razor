@@ -23,7 +23,7 @@
     @if (showResults && !string.IsNullOrWhiteSpace(searchQuery))
     {
         <div class="search-results-dropdown">
-            @if (isSearching)
+            @if (isSearching && !searchResults.Any())
             {
                 <div class="search-status">Searching products...</div>
             }
