@@ -1,10 +1,12 @@
 @page "/checkout"
 @implements IDisposable
+@using BackendCommerceApp.Data
 @using BackendCommerceApp.Services
 @using BackendCommerceApp.Models
 @using System.ComponentModel.DataAnnotations
 @inject CartService CartService
 @inject AuthService AuthService
+@inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 
 <PageTitle>Checkout</PageTitle>
@@ -154,9 +156,21 @@
         _ = InvokeAsync(StateHasChanged);
     }
 
-    private void HandlePlaceOrder()
+    private async Task HandlePlaceOrder()
     {
-        orderNumber = "ORD-" + Random.Shared.Next(100000, 999999);
+        var order = new Order
+        {
+            Date = DateTime.UtcNow,
+            FirstName = checkoutModel.FirstName,
+            LastName = checkoutModel.LastName,
+            TotalPrice = CartService.Subtotal,
+            Fulfilled = false
+        };
+
+        DbContext.Orders.Add(order);
+        await DbContext.SaveChangesAsync();
+
+        orderNumber = order.OrderId.ToString();
         shippingEmail = checkoutModel.Email;
         CartService.ClearCart();
         orderPlaced = true;
