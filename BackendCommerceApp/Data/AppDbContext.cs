@@ -13,6 +13,7 @@ public class AppDbContext : DbContext
     public DbSet<Product> Products { get; set; }
     public DbSet<LoginInformation> LoginInformation { get; set; }
     public DbSet<Order> Orders { get; set; }
+    public DbSet<Coupon> Coupons { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +57,15 @@ public class AppDbContext : DbContext
             entity.Property(order => order.LastName).HasColumnName("last_name");
             entity.Property(order => order.TotalPrice).HasColumnName("total_price");
             entity.Property(order => order.Fulfilled).HasColumnName("fulfilled");
+        });
+
+        modelBuilder.Entity<Coupon>(entity =>
+        {
+            entity.ToTable("coupon");
+            entity.HasKey(coupon => coupon.PromoCode);
+
+            entity.Property(coupon => coupon.PromoCode).HasColumnName("promo_code");
+            entity.Property(coupon => coupon.PercentOff).HasColumnName("percent_off");
         });
     }
 }
