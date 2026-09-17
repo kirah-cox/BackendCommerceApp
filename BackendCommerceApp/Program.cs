@@ -83,6 +83,22 @@ using (var scope = app.Services.CreateScope())
 
         await dbContext.SaveChangesAsync();
     }
+
+    var seedCoupons = new[]
+    {
+        new Coupon { PromoCode = "SAVE10", PercentOff = 10m },
+        new Coupon { PromoCode = "WELCOME20", PercentOff = 20m }
+    };
+
+    foreach (var coupon in seedCoupons)
+    {
+        if (!await dbContext.Coupons.AnyAsync(existingCoupon => existingCoupon.PromoCode == coupon.PromoCode))
+        {
+            dbContext.Coupons.Add(coupon);
+        }
+    }
+
+    await dbContext.SaveChangesAsync();
 }
 
 // Configure the HTTP request pipeline.
