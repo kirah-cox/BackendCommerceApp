@@ -364,3 +364,6 @@ MigrationBackup/
 FodyWeavers.xsd
 # Environment variables
 .env
+
+
+*.zip

@@ -161,6 +161,7 @@
         var order = new Order
         {
             Date = DateTime.UtcNow,
+            UserId = AuthService.CurrentUser?.UserId,
             FirstName = checkoutModel.FirstName,
             LastName = checkoutModel.LastName,
             TotalPrice = CartService.Subtotal,

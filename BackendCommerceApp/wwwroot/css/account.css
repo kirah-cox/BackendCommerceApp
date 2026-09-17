@@ -265,3 +265,23 @@
         flex-direction: column;
     }
 }
+
+.order-status-badge {
+    display: inline-block;
+    min-width: 5.5rem;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.order-status-badge.is-pending {
+    color: #5e6b75;
+    background: #edf1f3;
+}
+
+.order-status-badge.is-fulfilled {
+    color: #21633e;
+    background: #dff3e6;
+}
