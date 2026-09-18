@@ -1,0 +1,96 @@
+@page "/my-orders"
+@using BackendCommerceApp.Data
+@using BackendCommerceApp.Services
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext DbContext
+@inject AuthService AuthService
+
+<PageTitle>My Orders</PageTitle>
+
+@if (AuthService.CurrentUser is null)
+{
+    <section class="account-list-page">
+        <div class="account-list-status">
+            <p class="eyebrow">Order history</p>
+            <h1>Log in to view your orders</h1>
+            <p>Your past orders will appear here after you log in.</p>
+            <a class="btn btn-primary" href="login">Log in</a>
+        </div>
+    </section>
+}
+else
+{
+    <section class="account-list-page">
+        <div class="account-list-heading">
+            <div>
+                <p class="eyebrow">Order history</p>
+                <h1>My Orders</h1>
+                <p>@(orders.Count == 1 ? "1 order" : $"{orders.Count} orders") placed on this account.</p>
+            </div>
+        </div>
+
+        @if (loading)
+        {
+            <p>Loading your orders...</p>
+        }
+        else if (!orders.Any())
+        {
+            <div class="account-list-status">
+                <h2>No orders yet</h2>
+                <p>Once you place an order it will show up here.</p>
+                <a class="btn btn-primary" href="/">Start shopping</a>
+            </div>
+        }
+        else
+        {
+            <div class="account-table-wrap">
+                <table class="account-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in orders)
+                        {
+                            <tr>
+                                <td>#@order.OrderId</td>
+                                <td>@order.Date.ToLocalTime().ToString("MMM d, yyyy h:mm tt")</td>
+                                <td>$@order.TotalPrice.ToString("0.00")</td>
+                                <td>
+                                    <span class="order-status-badge @(order.Fulfilled ? "is-fulfilled" : "is-pending")">
+                                        @(order.Fulfilled ? "Fulfilled" : "Pending")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}
+
+@code {
+    private List<BackendCommerceApp.Models.Order> orders = new();
+    private bool loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userId = AuthService.CurrentUser?.UserId;
+
+        if (userId is not null)
+        {
+            orders = await DbContext.Orders
+                .AsNoTracking()
+                .Where(order => order.UserId == userId)
+                .OrderByDescending(order => order.Date)
+                .ToListAsync();
+        }
+
+        loading = false;
+    }
+}

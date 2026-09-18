@@ -220,6 +220,33 @@
     background: #edf1f3;
 }
 
+.order-status-select {
+    min-width: 8.5rem;
+    padding: 0.3rem 1.75rem 0.3rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.order-status-select.is-pending {
+    color: #5e6b75;
+    background-color: #edf1f3;
+    border-color: #dce4e8;
+}
+
+.order-status-select.is-fulfilled {
+    color: #21633e;
+    background-color: #dff3e6;
+    border-color: #bfe6cd;
+}
+
+.order-status-select:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(196, 90, 53, 0.15);
+}
+
 .account-list-status {
     padding: 2.5rem;
     border: 1px dashed #cbd7de;
@@ -237,4 +264,24 @@
         align-items: start;
         flex-direction: column;
     }
+}
+
+.order-status-badge {
+    display: inline-block;
+    min-width: 5.5rem;
+    padding: 0.2rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.order-status-badge.is-pending {
+    color: #5e6b75;
+    background: #edf1f3;
+}
+
+.order-status-badge.is-fulfilled {
+    color: #21633e;
+    background: #dff3e6;
 }

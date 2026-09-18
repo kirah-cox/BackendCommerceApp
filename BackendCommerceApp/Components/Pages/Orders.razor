@@ -1,0 +1,106 @@
+@page "/orders"
+@using BackendCommerceApp.Data
+@using BackendCommerceApp.Services
+@using Microsoft.EntityFrameworkCore
+@inject AppDbContext DbContext
+@inject AuthService AuthService
+
+<PageTitle>Orders</PageTitle>
+
+@if (AuthService.CurrentUser?.Admin != true)
+{
+    <section class="account-list-page">
+        <div class="account-list-status">
+            <h1>Admin access required</h1>
+            <p>Only administrators can view orders.</p>
+            <a class="btn btn-primary" href="login">Log in</a>
+        </div>
+    </section>
+}
+else
+{
+    <section class="account-list-page">
+        <div class="account-list-heading">
+            <div>
+                <p class="eyebrow">Admin</p>
+                <h1>Orders</h1>
+                <p>@orders.Count order(s) placed so far.</p>
+            </div>
+        </div>
+
+        @if (!orders.Any())
+        {
+            <p>No orders have been placed yet.</p>
+        }
+        else
+        {
+            <div class="account-table-wrap">
+                <table class="account-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in orders)
+                        {
+                            <tr>
+                                <td>#@order.OrderId</td>
+                                <td>@order.Date.ToString("MMM d, yyyy h:mm tt")</td>
+                                <td>@order.FirstName @order.LastName</td>
+                                <td>$@order.TotalPrice.ToString("0.00")</td>
+                                <td>
+                                    <select class="form-select order-status-select @(order.Fulfilled ? "is-fulfilled" : "is-pending")"
+                                            value="@(order.Fulfilled ? "Fulfilled" : "Pending")"
+                                            @onchange="@(e => UpdateOrderStatus(order, e.Value))">
+                                        <option value="Pending">Pending</option>
+                                        <option value="Fulfilled">Fulfilled</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </section>
+}
+
+@code {
+    private List<BackendCommerceApp.Models.Order> orders = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.CurrentUser?.Admin == true)
+        {
+            orders = await DbContext.Orders
+                .AsNoTracking()
+                .OrderByDescending(order => order.Date)
+                .ToListAsync();
+        }
+    }
+
+    private async Task UpdateOrderStatus(BackendCommerceApp.Models.Order order, object? value)
+    {
+        var fulfilled = value?.ToString() == "Fulfilled";
+        if (order.Fulfilled == fulfilled)
+        {
+            return;
+        }
+
+        var dbOrder = await DbContext.Orders.FirstOrDefaultAsync(o => o.OrderId == order.OrderId);
+        if (dbOrder is null)
+        {
+            return;
+        }
+
+        dbOrder.Fulfilled = fulfilled;
+        await DbContext.SaveChangesAsync();
+
+        order.Fulfilled = fulfilled;
+    }
+}

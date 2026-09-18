@@ -1,10 +1,13 @@
 @page "/checkout"
 @implements IDisposable
+@using BackendCommerceApp.Data
 @using BackendCommerceApp.Services
 @using BackendCommerceApp.Models
 @using System.ComponentModel.DataAnnotations
+@using Microsoft.EntityFrameworkCore
 @inject CartService CartService
 @inject AuthService AuthService
+@inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 
 <PageTitle>Checkout</PageTitle>
@@ -94,7 +97,19 @@
                         </label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary place-order-btn">Place Order ($@CartService.Subtotal.ToString("0.00"))</button>
+                    <div class="form-group coupon-group">
+                        <label for="promoCode">Coupon Code</label>
+                        <div class="coupon-entry">
+                            <InputText id="promoCode" class="form-control" @bind-Value="promoCode" placeholder="Enter coupon code" />
+                            <button type="button" class="btn btn-secondary" @onclick="ApplyCoupon">Apply</button>
+                        </div>
+                        @if (!string.IsNullOrEmpty(couponMessage))
+                        {
+                            <div class="@(couponApplied ? "text-success" : "text-danger")" role="status">@couponMessage</div>
+                        }
+                    </div>
+
+                    <button type="submit" class="btn btn-primary place-order-btn">Place Order ($@OrderTotal.ToString("0.00"))</button>
                 </EditForm>
             </div>
 
@@ -117,6 +132,13 @@
                     <span>Subtotal</span>
                     <span>$@CartService.Subtotal.ToString("0.00")</span>
                 </div>
+                @if (couponApplied)
+                {
+                    <div class="summary-line">
+                        <span>Coupon (@selectedCoupon!.PromoCode)</span>
+                        <span class="text-success">- $@DiscountAmount.ToString("0.00")</span>
+                    </div>
+                }
                 <div class="summary-line">
                     <span>Shipping</span>
                     <span class="free-shipping">FREE</span>
@@ -124,7 +146,7 @@
                 <hr />
                 <div class="summary-line total-line">
                     <span>Total</span>
-                    <span>$@CartService.Subtotal.ToString("0.00")</span>
+                    <span>$@OrderTotal.ToString("0.00")</span>
                 </div>
             </div>
         </div>
@@ -136,6 +158,16 @@
     private bool orderPlaced;
     private string orderNumber = string.Empty;
     private string shippingEmail = string.Empty;
+    private string promoCode = string.Empty;
+    private string couponMessage = string.Empty;
+    private Coupon? selectedCoupon;
+    private bool couponApplied;
+
+    private decimal DiscountAmount => couponApplied && selectedCoupon is not null
+        ? CartService.Subtotal * selectedCoupon.PercentOff / 100m
+        : 0m;
+
+    private decimal OrderTotal => CartService.Subtotal - DiscountAmount;
 
     protected override void OnInitialized()
     {
@@ -154,9 +186,54 @@
         _ = InvokeAsync(StateHasChanged);
     }
 
-    private void HandlePlaceOrder()
+    private async Task ApplyCoupon()
     {
-        orderNumber = "ORD-" + Random.Shared.Next(100000, 999999);
+        couponApplied = false;
+        selectedCoupon = null;
+        couponMessage = string.Empty;
+
+        var enteredCode = promoCode
+            .Trim()
+            .Replace(" ", string.Empty, StringComparison.Ordinal)
+            .ToUpperInvariant();
+        if (string.IsNullOrWhiteSpace(enteredCode))
+        {
+            couponMessage = "Enter a coupon code.";
+            return;
+        }
+
+        var coupon = await DbContext.Coupons
+            .AsNoTracking()
+            .FirstOrDefaultAsync(existingCoupon => existingCoupon.PromoCode.ToUpper() == enteredCode);
+
+        if (coupon is null || coupon.PercentOff < 0m || coupon.PercentOff > 100m)
+        {
+            couponMessage = "That coupon code is not valid.";
+            return;
+        }
+
+        selectedCoupon = coupon;
+        couponApplied = true;
+        promoCode = coupon.PromoCode;
+        couponMessage = $"Coupon applied: {coupon.PercentOff:0.##}% off.";
+    }
+
+    private async Task HandlePlaceOrder()
+    {
+        var order = new Order
+        {
+            Date = DateTime.UtcNow,
+            UserId = AuthService.CurrentUser?.UserId,
+            FirstName = checkoutModel.FirstName,
+            LastName = checkoutModel.LastName,
+            TotalPrice = OrderTotal,
+            Fulfilled = false
+        };
+
+        DbContext.Orders.Add(order);
+        await DbContext.SaveChangesAsync();
+
+        orderNumber = order.OrderId.ToString();
         shippingEmail = checkoutModel.Email;
         CartService.ClearCart();
         orderPlaced = true;

@@ -52,11 +52,14 @@ public class AppDbContext : DbContext
             entity.HasKey(order => order.OrderId);
 
             entity.Property(order => order.OrderId).HasColumnName("order_id");
+            entity.Property(order => order.UserId).HasColumnName("user_id");
             entity.Property(order => order.Date).HasColumnName("date");
             entity.Property(order => order.FirstName).HasColumnName("first_name");
             entity.Property(order => order.LastName).HasColumnName("last_name");
             entity.Property(order => order.TotalPrice).HasColumnName("total_price");
             entity.Property(order => order.Fulfilled).HasColumnName("fulfilled");
+
+            entity.HasIndex(order => order.UserId);
         });
 
         modelBuilder.Entity<Coupon>(entity =>
