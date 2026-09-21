@@ -41,6 +41,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<CartService>();
+builder.Services.AddScoped<CouponService>();
 
 var app = builder.Build();
 

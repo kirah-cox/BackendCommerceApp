@@ -1,0 +1,146 @@
+@page "/coupons"
+@using BackendCommerceApp.Models
+@using BackendCommerceApp.Services
+@rendermode InteractiveServer
+@inject CouponService CouponService
+@inject AuthService AuthService
+
+<PageTitle>Coupons</PageTitle>
+
+@if (AuthService.CurrentUser?.Admin != true)
+{
+    <div class="account-list-status">
+        <h1>Admin access required</h1>
+        <p>Only administrators can manage coupons.</p>
+        <a class="btn btn-primary" href="login">Log in</a>
+    </div>
+}
+else
+{
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Create Coupon</h2>
+
+                @if (!string.IsNullOrEmpty(message))
+                {
+                    <div class="alert alert-@messageType alert-dismissible fade show" role="alert">
+                        @message
+                        <button type="button" class="btn-close" @onclick="() => message = string.Empty"></button>
+                    </div>
+                }
+
+                <form @onsubmit="HandleCreateCoupon">
+                    <div class="mb-3">
+                        <label for="promoCode" class="form-label">Promo Code</label>
+                        <input type="text" class="form-control text-uppercase" id="promoCode" @bind="promoCode" placeholder="e.g. SAVE20" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="percentOff" class="form-label">Percent Off</label>
+                        <input type="number" class="form-control" id="percentOff" @bind="percentOff" min="1" max="100" step="1" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Create Coupon</button>
+                </form>
+            </div>
+        </div>
+
+        <section class="account-list-page mt-5">
+            <div class="account-list-heading">
+                <div>
+                    <p class="eyebrow">Admin</p>
+                    <h1>Existing Coupons</h1>
+                    <p>@coupons.Count coupon(s) available.</p>
+                </div>
+            </div>
+
+            @if (!coupons.Any())
+            {
+                <p>No coupons have been created yet.</p>
+            }
+            else
+            {
+                <div class="account-table-wrap">
+                    <table class="account-table">
+                        <thead>
+                            <tr>
+                                <th>Promo Code</th>
+                                <th>Percent Off</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var coupon in coupons)
+                            {
+                                <tr>
+                                    <td>@coupon.PromoCode</td>
+                                    <td>@coupon.PercentOff.ToString("0")%</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => HandleDeleteCoupon(coupon.PromoCode)">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </section>
+    </div>
+}
+
+@code {
+    private string promoCode = string.Empty;
+    private decimal percentOff;
+    private string message = string.Empty;
+    private string messageType = "info";
+    private List<Coupon> coupons = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.CurrentUser?.Admin == true)
+        {
+            coupons = await CouponService.GetCouponsAsync();
+        }
+    }
+
+    private async Task HandleCreateCoupon()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(promoCode))
+            {
+                message = "Promo code is required.";
+                messageType = "warning";
+                return;
+            }
+
+            if (percentOff <= 0 || percentOff > 100)
+            {
+                message = "Percent off must be between 1 and 100.";
+                messageType = "warning";
+                return;
+            }
+
+            await CouponService.CreateCouponAsync(promoCode, percentOff);
+
+            message = "Coupon created successfully!";
+            messageType = "success";
+            promoCode = string.Empty;
+            percentOff = 0;
+
+            coupons = await CouponService.GetCouponsAsync();
+        }
+        catch (Exception ex)
+        {
+            message = $"Error creating coupon: {ex.Message}";
+            messageType = "danger";
+        }
+    }
+
+    private async Task HandleDeleteCoupon(string code)
+    {
+        await CouponService.DeleteCouponAsync(code);
+        coupons = await CouponService.GetCouponsAsync();
+    }
+}

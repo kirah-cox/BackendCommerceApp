@@ -247,6 +247,61 @@
     box-shadow: 0 0 0 0.2rem rgba(196, 90, 53, 0.15);
 }
 
+.period-filter-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.period-filter-wrap label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #5e6b75;
+}
+
+.period-filter {
+    min-width: 10rem;
+    border-color: #cbd7de;
+}
+
+.period-filter:focus {
+    border-color: #c45a35;
+    box-shadow: 0 0 0 0.2rem rgba(196, 90, 53, 0.15);
+}
+
+.sales-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.sales-summary-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px solid #dce4e8;
+    border-radius: 0.5rem;
+    background: #fff;
+    box-shadow: 0 0.5rem 1.25rem rgba(23, 50, 77, 0.05);
+}
+
+.sales-summary-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #5e6b75;
+}
+
+.sales-summary-value {
+    font-size: 1.5rem;
+    color: #17324d;
+}
+
 .account-list-status {
     padding: 2.5rem;
     border: 1px dashed #cbd7de;

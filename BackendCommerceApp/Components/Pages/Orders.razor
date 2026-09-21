@@ -26,11 +26,41 @@ else
                 <h1>Orders</h1>
                 <p>@orders.Count order(s) placed so far.</p>
             </div>
+
+            <div class="period-filter-wrap">
+                <label for="period-filter">Sales period</label>
+                <select id="period-filter" class="form-select period-filter" @bind="selectedPeriod">
+                    <option value="all">All time</option>
+                    <option value="today">Today</option>
+                    <option value="week">This week</option>
+                    <option value="month">This month</option>
+                    <option value="year">This year</option>
+                </select>
+            </div>
         </div>
 
-        @if (!orders.Any())
+        <div class="sales-summary-grid">
+            <div class="sales-summary-card">
+                <span class="sales-summary-label">Orders</span>
+                <strong class="sales-summary-value">@FilteredOrders.Count</strong>
+            </div>
+            <div class="sales-summary-card">
+                <span class="sales-summary-label">Revenue</span>
+                <strong class="sales-summary-value">$@FilteredOrders.Sum(o => o.TotalPrice).ToString("0.00")</strong>
+            </div>
+            <div class="sales-summary-card">
+                <span class="sales-summary-label">Fulfilled</span>
+                <strong class="sales-summary-value">@FilteredOrders.Count(o => o.Fulfilled)</strong>
+            </div>
+            <div class="sales-summary-card">
+                <span class="sales-summary-label">Pending</span>
+                <strong class="sales-summary-value">@FilteredOrders.Count(o => !o.Fulfilled)</strong>
+            </div>
+        </div>
+
+        @if (!FilteredOrders.Any())
         {
-            <p>No orders have been placed yet.</p>
+            <p>No orders found for this period.</p>
         }
         else
         {
@@ -46,7 +76,7 @@ else
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var order in orders)
+                        @foreach (var order in FilteredOrders)
                         {
                             <tr>
                                 <td>#@order.OrderId</td>
@@ -72,6 +102,26 @@ else
 
 @code {
     private List<BackendCommerceApp.Models.Order> orders = new();
+    private string selectedPeriod = "all";
+
+    private IReadOnlyList<BackendCommerceApp.Models.Order> FilteredOrders
+    {
+        get
+        {
+            var cutoff = selectedPeriod switch
+            {
+                "today" => DateTime.UtcNow.Date,
+                "week" => DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek),
+                "month" => new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1),
+                "year" => new DateTime(DateTime.UtcNow.Year, 1, 1),
+                _ => (DateTime?)null
+            };
+
+            return cutoff is null
+                ? orders
+                : orders.Where(order => order.Date >= cutoff.Value).ToList();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
